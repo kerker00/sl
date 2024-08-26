@@ -256,7 +256,6 @@ int add_sl(int x)
         NUMBER = 2;
 
     int i, j, y, py = 0;
-    int py1, py2, py3 = 0;
     int LOGOLENGTH = 42 + 21*NUMBER;
 
     if (x < - LOGOLENGTH)  return ERR;
@@ -264,7 +263,6 @@ int add_sl(int x)
 
     if (LAND == 1) {
         y = 1.5 * LINES - (x / 6) - (COLS / 6) - LOGOHEIGHT;
-        py1 = -2;  py2 = -4;  py3 = -6;
     }
     if (FLY == 1) {
         y = (x / 6) + LINES - (COLS / 6) - LOGOHEIGHT;
@@ -343,7 +341,7 @@ int add_ICE(int x)
                                                      ICE1WE1, ICEDEL}};
     static char *icew[ICEHEIGHT + 1] = {ICE1WG0, ICE1WG1, ICE1WG2, ICE1WG3, ICE1WG4, ICE1WG5, ICEDEL};
     int y, i, j, dy = 0;
-    int ICEWLENGHT = (ICELENGTH) * (NUMBER + 1);
+    int ICEWLENGHT = (ICELENGTH) * (NUMBER + 2);
     if (x < -ICEWLENGHT)
         return ERR;
     y = LINES / 2 - 5;
