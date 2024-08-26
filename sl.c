@@ -71,7 +71,7 @@ int my_mvaddstr(int y, int x, char *str)
 
 void option(char *str)
 {
-    extern int ACCIDENT, LOGO, FLY, C51;
+    extern int ACCIDENT, LOGO, FLY, C51, TGV, NUMBER;
 
     while (*str != '\0') {
         switch (*str) {
@@ -100,6 +100,8 @@ int main(int argc, char *argv[])
     }
     initscr();
     signal(SIGINT, SIG_IGN);
+    signal(SIGQUIT, SIG_IGN);
+    cbreak();
     noecho();
     curs_set(0);
     nodelay(stdscr, TRUE);
