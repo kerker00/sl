@@ -350,7 +350,7 @@ int add_ICE(int x)
     {
         my_mvaddstr(y + i, x, ice[(ICEWLENGHT + x) / 3 % ICEPATTERNS][i]);
         for (j = 1; j <= NUMBER; j++)
-            my_mvaddstr(y + i + dy * j, x + (ICELENGTH)*j, icew[i]);
+            my_mvaddstr(y + i + dy * j, x + (ICELENGTH-1)*j, icew[i]);
     }
     attroff(COLOR_PAIR(2));
     return OK;
