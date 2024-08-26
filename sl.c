@@ -339,7 +339,8 @@ int add_ICE(int x)
                                                      ICE1WE0, ICEDEL},
                                                     {ICE1TZ0, ICE1TZ1, ICE1TZ2, ICE1TZ3, ICE1TZ4,
                                                      ICE1WE1, ICEDEL}};
-    static char *icew[ICEHEIGHT + 1] = {ICE1WG0, ICE1WG1, ICE1WG2, ICE1WG3, ICE1WG4, ICE1WG5, ICEDEL};
+    static char *icew[ICEPATTERNS][ICEHEIGHT + 1] = {{ICE1WG0, ICE1WG1, ICE1WG2, ICE1WG3, ICE1WG4, ICE1WG5, ICEDEL},
+                                                     {ICE1WG0, ICE1WG1, ICE1WG2, ICE1WG3, ICE1WG4, ICE1WG6, ICEDEL}};
     int y, i, j, dy = 0;
     int ICEWLENGHT = (ICELENGTH) * (NUMBER + 2);
     if (x < -ICEWLENGHT)
@@ -348,9 +349,9 @@ int add_ICE(int x)
     attron(COLOR_PAIR(2));
     for (i = 0; i <= ICEHEIGHT; ++i)
     {
-        my_mvaddstr(y + i, x, ice[(ICEWLENGHT + x) / 3 % ICEPATTERNS][i]);
+        my_mvaddstr(y + i, x, ice[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
         for (j = 1; j <= NUMBER; j++)
-            my_mvaddstr(y + i + dy * j, x + (ICELENGTH-1)*j, icew[i]);
+            my_mvaddstr(y + i + dy * j, x + (ICELENGTH - 1) * j, icew[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
     }
     attroff(COLOR_PAIR(2));
     return OK;
