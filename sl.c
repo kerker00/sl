@@ -46,8 +46,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <getopt.h>
 #include "sl.h"
-
 
 void add_smoke(int y, int x);
 void add_man(int y, int x);
@@ -67,6 +67,7 @@ int CONTINUOUS = 0;  // New variable to indicate continuous mode
 int NUMBER    = -1;
 int TGV       = 0;
 int ICE = 0;
+int EXIT = 0;
 
 int my_mvaddstr(int y, int x, char *str)
 {
@@ -77,12 +78,36 @@ int my_mvaddstr(int y, int x, char *str)
     return OK;
 }
 
+void print_help()
+{
+    printf("Usage: program [options]\n");
+    printf("Options:\n");
+    printf("  -h, --help                 Display this help message and exit\n");
+    printf("  -G, --TGV                  Run a french TGV \n");
+    printf("  -i, --ICE                  Run a german ice 1 \n");
+    printf("  -l, --little               Run a german ice 1 \n");
+    printf("  -a, --accident             some parts of the train will shout out for help\n");
+    printf("  -F, --fly                  The selected Train will fly \n");
+    printf("  -c, --C51                  Select a different type of steam locomotive \n");
+    printf("  -n, --number <number>      Specify a number of cars\n");
+    printf("  -v               Enable verbose mode\n");
+}
+// Struct to support long options
+struct option long_options[] = {
+    {"help", no_argument, 0, 'h'},
+    {"TGV", no_argument, 0, 'G'},
+    {"ICE", no_argument, 0, 'i'},
+    {"little", no_argument, 0, 'l'},
+    {"accident", no_argument, 0, 'a'},
+    {"number", required_argument, 0, 'n'},
+    {0, 0, 0, 0}};
+
 void option(int argc, char *const argv[])
 {
     int c;
-    extern int ACCIDENT, LOGO, FLY, LAND, C51, TGV, NUMBER, CONTINUOUS, ICE;
+    extern int ACCIDENT, LOGO, FLY, LAND, C51, TGV, NUMBER, CONTINUOUS, ICE, EXIT;
 
-    while ((c = getopt(argc, argv, "aFlLcrGin:")) != -1)
+    while ((c = getopt_long(argc, argv, "haFlLcrGin:", long_options, NULL)) != -1)
     {
         switch (c)
         {
@@ -110,6 +135,10 @@ void option(int argc, char *const argv[])
         case 'i':
             ICE = 1;
             break;
+        case 'h':
+            print_help();
+            EXIT = 1;
+            break;
         case 'n':
             NUMBER = atoi(optarg);
             break;
@@ -124,7 +153,8 @@ int main(int argc, char *argv[])
     int x = 0;
     int ch = 0;
     option(argc, argv);
-
+    if (EXIT)
+        return 0;
     initscr();
 
     /* Ignore following signals */
@@ -148,9 +178,9 @@ int main(int argc, char *argv[])
     nodelay(stdscr, TRUE);
     leaveok(stdscr, TRUE);
     scrollok(stdscr, FALSE);
-/*
- *   first Non prototype TGV was orange
- */
+    /*
+     *   first Non prototype TGV was orange
+     */
     if (TGV == 1) {
         if (has_colors())
         {
@@ -173,6 +203,7 @@ int main(int argc, char *argv[])
             bkgd(COLOR_PAIR(1));
         }
     }
+
     int until = -80;
     if (NUMBER > 0)
     {
