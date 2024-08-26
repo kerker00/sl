@@ -24,6 +24,19 @@
 
 #define TGVDEL   "                                                         "
 
+#define ICEHEIGHT 6
+#define ICELENGTH 45
+#define ICEPATTERNS 2
+
+#define ICE1TZ0 "                                  \"-._       "
+#define ICE1TZ1 "        ______________________---\"__,-'___   "
+#define ICE1TZ2 "    _,-'/| #### | |              ####     |  "
+#define ICE1TZ3 "_-'             | |                       |  "
+#define ICE1TZ4 "(_--------------------------------DB------|  "
+#define ICE1WE0 " \\------(o)~~~~(o)------------(o)~~~~(o)--'  "
+#define ICE1WE2 " \\------(O)~~~~(O)------------(O)~~~~(O)--'  "
+#define ICEDEL "                                             "
+
 #define TGVVAG0  "  ___________                                            "
 #define TGVVAG1  "  |_====____|\\________________________________________   "
 #define TGVVAG2  "o|  ||||         ___                                  |  "
