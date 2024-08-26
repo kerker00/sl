@@ -192,6 +192,7 @@ int add_sl(int x)
         NUMBER = 2;
 
     int i, j, y, py = 0;
+    int py1, py2, py3 = 0;
     int LOGOLENGTH = 42 + 21*NUMBER;
 
     if (x < - LOGOLENGTH)  return ERR;
