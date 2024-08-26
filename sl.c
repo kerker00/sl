@@ -6,6 +6,8 @@
  *        Last Modified: 2014/06/03
  *========================================
  */
+/* sl version 6.00 : Inlude many MR from Github and added ICE                */
+/*                                              by Markus Müller    2024/08/26 */
 /* sl version 5.03 : Fix some more compiler warnings.                        */
 /*                                              by Ryan Jacobs    2015/01/19 */
 /* sl version 5.02 : Fix compiler warnings.                                  */
@@ -125,7 +127,6 @@ int main(int argc, char *argv[])
     }
 
     initscr();
-    use_default_colors();
 
     /* Ignore following signals */
     
@@ -170,44 +171,65 @@ int main(int argc, char *argv[])
             start_color();
             init_pair(1, COLOR_WHITE, COLOR_WHITE);
             init_pair(2, COLOR_RED, COLOR_WHITE);
+            bkgd(COLOR_PAIR(1));
         }
     }
-    do {
-        for (x = COLS - 1; x >= -80; --x) {  // Loop the train from right to left
-            if (LOGO == 1) {
+    int until = -80;
+    if (NUMBER > 0)
+    {
+        until = -80 - (ICELENGTH * NUMBER);
+    }
+
+    do
+    {
+        for (x = COLS - 1; x >= until; --x)
+        { // Loop the train from right to left
+            if (LOGO == 1)
+            {
                 if (add_sl(x) == ERR)
                     break;
             }
-            else if (C51 == 1) {
+            else if (C51 == 1)
+            {
                 if (add_C51(x) == ERR)
                     break;
             }
             else if (ICE == 1)
             {
                 if (add_ICE(x) == ERR)
+                {
                     break;
+                }
             }
-            else if (TGV == 1) {
+            else if (TGV == 1)
+            {
                 if (add_TGV(x) == ERR)
                     break;
             }
             else
             {
-                if (add_D51(x) == ERR) break;
+                if (add_D51(x) == ERR)
+                    break;
             }
-            ch = getch();     // Get user input
-            if (ch == 'q') {  // Check if 'q' is pressed
-                CONTINUOUS = 0;  // Set CONTINUOUS to 0 to stop the loop
+            ch = getch(); // Get user input
+            if (ch == 'q')
+            {                   // Check if 'q' is pressed
+                CONTINUOUS = 0; // Set CONTINUOUS to 0 to stop the loop
                 break;
             }
-    	refresh();
-    	if (TGV)
-	  usleep(20000);
-	else
-	  usleep(40000);
-        }
-    } while (CONTINUOUS);  // Repeat the loop if in continuous mode
+            refresh();
+            if (TGV)
+                usleep(20000);
+            else if (ICE)
+            {
+                usleep(15000);
+            }
 
+            else
+                usleep(40000);
+        }
+    } while (CONTINUOUS); // Repeat the loop if in continuous mode
+    // Close the file
     mvcur(0, COLS - 1, LINES - 1, 0);
     endwin();
 
@@ -319,23 +341,18 @@ int add_ICE(int x)
                                                      ICE1WE0, ICEDEL},
                                                     {ICE1TZ0, ICE1TZ1, ICE1TZ2, ICE1TZ3, ICE1TZ4,
                                                      ICE1WE1, ICEDEL}};
-    static char *icew[ICEPATTERNS][ICEHEIGHT + 1] = {{ICE1WG0, ICE1WG1, ICE1WG2, ICE1WG3, ICE1WG4,
-                                                      ICE1WG5, ICEDWGEL},
-                                                     {ICE1WG0, ICE1WG1, ICE1WG2, ICE1WG3, ICE1WG4,
-                                                      ICE1WG6, ICEDWGEL}};
+    static char *icew[ICEHEIGHT + 1] = {ICE1WG0, ICE1WG1, ICE1WG2, ICE1WG3, ICE1WG4, ICE1WG5, ICEDEL};
     int y, i, j, dy = 0;
-
-    if (x < -ICELENGTH)
+    int ICEWLENGHT = (ICELENGTH) * (NUMBER + 1);
+    if (x < -ICEWLENGHT)
         return ERR;
     y = LINES / 2 - 5;
-    bkgd(COLOR_PAIR(1));
-    refresh();
     attron(COLOR_PAIR(2));
     for (i = 0; i <= ICEHEIGHT; ++i)
     {
-        my_mvaddstr(y + i, x, ice[((ICELENGTH + x)) % ICEPATTERNS][i]);
+        my_mvaddstr(y + i, x, ice[(ICEWLENGHT + x) / 3 % ICEPATTERNS][i]);
         for (j = 1; j <= NUMBER; j++)
-            my_mvaddstr(y + i + dy * j, x + ICELENGTH * j, icew[((ICELENGTH + x)) % ICEPATTERNS][i]);
+            my_mvaddstr(y + i + dy * j, x + (ICELENGTH)*j, icew[i]);
     }
     attroff(COLOR_PAIR(2));
     return OK;
