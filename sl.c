@@ -44,6 +44,8 @@
 #include <curses.h>
 #include <signal.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "sl.h"
 
 
@@ -54,7 +56,6 @@ int add_D51(int x);
 int add_TGV(int x);
 int add_ICE(int x);
 int add_sl(int x);
-void option(char *str);
 int my_mvaddstr(int y, int x, char *str);
 
 int ACCIDENT  = 0;
@@ -76,12 +77,15 @@ int my_mvaddstr(int y, int x, char *str)
     return OK;
 }
 
-void option(char *str)
+void option(int argc, char *const argv[])
 {
+    int c;
     extern int ACCIDENT, LOGO, FLY, LAND, C51, TGV, NUMBER, CONTINUOUS, ICE;
 
-    while (*str != '\0') {
-        switch (*str) {
+    while ((c = getopt(argc, argv, "aFlLcrGin:")) != -1)
+    {
+        switch (c)
+        {
         case 'a':
             ACCIDENT = 1;
             break;
@@ -106,25 +110,20 @@ void option(char *str)
         case 'i':
             ICE = 1;
             break;
+        case 'n':
+            NUMBER = atoi(optarg);
+            break;
         default:
-            if (isdigit(*str))
-                NUMBER = (NUMBER < 0 ? 0 : NUMBER * 10) + *str - '0';
             break;
         }
-        str++;
     }
 }
 
 int main(int argc, char *argv[])
 {
-    int x, i;
-    int ch = 0;  // Variable to store user input, initialized to 0
-
-    for (i = 1; i < argc; ++i) {
-        if (*argv[i] == '-') {
-            option(argv[i] + 1);
-        }
-    }
+    int x = 0;
+    int ch = 0;
+    option(argc, argv);
 
     initscr();
 
