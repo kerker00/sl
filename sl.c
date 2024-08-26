@@ -57,6 +57,7 @@ int ACCIDENT  = 0;
 int LOGO      = 0;
 int FLY       = 0;
 int C51       = 0;
+int CONTINUOUS = 0;  // New variable to indicate continuous mode
 int NUMBER    = -1;
 int TGV       = 0;
 
@@ -71,7 +72,7 @@ int my_mvaddstr(int y, int x, char *str)
 
 void option(char *str)
 {
-    extern int ACCIDENT, LOGO, FLY, C51, TGV, NUMBER;
+    extern int ACCIDENT, LOGO, FLY, C51, TGV, NUMBER, CONTINUOUS;
 
     while (*str != '\0') {
         switch (*str) {
@@ -79,6 +80,7 @@ void option(char *str)
             case 'F': FLY      = 1; break;
             case 'l': LOGO     = 1; break;
             case 'c': C51      = 1; break;
+            case 'r': CONTINUOUS = 1; break;  // Handle -r option
             case 'G': TGV      = 1; break;
             default:
               if (isdigit(*str))
@@ -92,6 +94,7 @@ void option(char *str)
 int main(int argc, char *argv[])
 {
     int x, i;
+    int ch = 0;  // Variable to store user input, initialized to 0
 
     for (i = 1; i < argc; ++i) {
         if (*argv[i] == '-') {
@@ -134,32 +137,38 @@ int main(int argc, char *argv[])
 	}
     }
 
-    for (x = COLS - 1; ; --x) {
-        if (LOGO == 1) {
-            if (add_sl(x) == ERR) break;
-        }
-        else if (C51 == 1) {
-            if (add_C51(x) == ERR) break;
-        }
-        else if (TGV == 1) {
+    do {
+        for (x = COLS - 1; x >= -80; --x) {  // Loop the train from right to left
+            if (LOGO == 1) {
+                if (add_sl(x) == ERR) break;
+            }
+            else if (C51 == 1) {
+                if (add_C51(x) == ERR) break;
+            }
+            else if (TGV == 1) {
             if (add_TGV(x) == ERR) break;
         }
         else {
-            if (add_D51(x) == ERR) break;
-        }
-	getch();
-	refresh();
-	if (TGV)
+                if (add_D51(x) == ERR) break;
+            }
+	    ch = getch();  // Get user input
+            if (ch == 'q') {  // Check if 'q' is pressed
+                CONTINUOUS = 0;  // Set CONTINUOUS to 0 to stop the loop
+                break;
+            }
+    	refresh();
+    	if (TGV)
 	  usleep(20000);
 	else
 	  usleep(40000);
-    }
+        }
+    } while (CONTINUOUS);  // Repeat the loop if in continuous mode
+
     mvcur(0, COLS - 1, LINES - 1, 0);
     endwin();
 
     return 0;
 }
-
 
 int add_sl(int x)
 {
