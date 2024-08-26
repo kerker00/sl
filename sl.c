@@ -123,6 +123,7 @@ int main(int argc, char *argv[])
             option(argv[i] + 1);
         }
     }
+
     initscr();
     use_default_colors();
 
@@ -318,7 +319,11 @@ int add_ICE(int x)
                                                      ICE1WE0, ICEDEL},
                                                     {ICE1TZ0, ICE1TZ1, ICE1TZ2, ICE1TZ3, ICE1TZ4,
                                                      ICE1WE1, ICEDEL}};
-    int y, i, dy = 0;
+    static char *icew[ICEPATTERNS][ICEHEIGHT + 1] = {{ICE1WG0, ICE1WG1, ICE1WG2, ICE1WG3, ICE1WG4,
+                                                      ICE1WG5, ICEDWGEL},
+                                                     {ICE1WG0, ICE1WG1, ICE1WG2, ICE1WG3, ICE1WG4,
+                                                      ICE1WG6, ICEDWGEL}};
+    int y, i, j, dy = 0;
 
     if (x < -ICELENGTH)
         return ERR;
@@ -329,6 +334,8 @@ int add_ICE(int x)
     for (i = 0; i <= ICEHEIGHT; ++i)
     {
         my_mvaddstr(y + i, x, ice[((ICELENGTH + x)) % ICEPATTERNS][i]);
+        for (j = 1; j <= NUMBER; j++)
+            my_mvaddstr(y + i + dy * j, x + ICELENGTH * j, icew[((ICELENGTH + x)) % ICEPATTERNS][i]);
     }
     attroff(COLOR_PAIR(2));
     return OK;
