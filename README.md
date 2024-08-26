@@ -8,3 +8,6 @@ all.
 Copyright 1993,1998,2014 Toyoda Masashi (mtoyoda@acm.org)
 
 ![](demo.gif)
+
+New ICE 1 with optional n cars (source of ascii art: https://ascii.co.uk/art/train)
+![](cars.gif)
