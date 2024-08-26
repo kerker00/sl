@@ -44,6 +44,7 @@
 #include <unistd.h>
 #include "sl.h"
 
+
 void add_smoke(int y, int x);
 void add_man(int y, int x);
 int add_C51(int x);
@@ -123,6 +124,7 @@ int main(int argc, char *argv[])
         }
     }
     initscr();
+    use_default_colors();
 
     /* Ignore following signals */
     
@@ -165,8 +167,8 @@ int main(int argc, char *argv[])
         if (has_colors())
         {
             start_color();
-            init_pair(1, COLOR_RED, COLOR_BLACK);
-            init_pair(2, COLOR_RED, COLOR_BLACK);
+            init_pair(1, COLOR_WHITE, COLOR_WHITE);
+            init_pair(2, COLOR_RED, COLOR_WHITE);
         }
     }
     do {
@@ -321,6 +323,8 @@ int add_ICE(int x)
     if (x < -ICELENGTH)
         return ERR;
     y = LINES / 2 - 5;
+    bkgd(COLOR_PAIR(1));
+    refresh();
     attron(COLOR_PAIR(2));
     for (i = 0; i <= ICEHEIGHT; ++i)
     {
