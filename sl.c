@@ -149,15 +149,26 @@ int main(int argc, char *argv[])
  *   first Non prototype TGV was orange
  */
     if (TGV == 1) {
-	if (has_colors()) {
-	    start_color();
-	    init_pair(1, COLOR_WHITE, COLOR_BLACK);
-	    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
-	} else {
-	    TGV = 0;
-	}
+        if (has_colors())
+        {
+            start_color();
+            init_pair(1, COLOR_WHITE, COLOR_BLACK);
+            init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+        }
+        else
+        {
+            TGV = 0;
+        }
     }
-
+    if (ICE == 1)
+    {
+        if (has_colors())
+        {
+            start_color();
+            init_pair(1, COLOR_RED, COLOR_BLACK);
+            init_pair(2, COLOR_RED, COLOR_BLACK);
+        }
+    }
     do {
         for (x = COLS - 1; x >= -80; --x) {  // Loop the train from right to left
             if (LOGO == 1) {
@@ -304,16 +315,18 @@ int add_ICE(int x)
     static char *tgv[ICEPATTERNS][ICEHEIGHT + 1] = {{ICE1TZ0, ICE1TZ1, ICE1TZ2, ICE1TZ3, ICE1TZ4,
                                                      ICE1WE0, ICEDEL},
                                                     {ICE1TZ0, ICE1TZ1, ICE1TZ2, ICE1TZ3, ICE1TZ4,
-                                                     ICE1WE0, ICEDEL}};
+                                                     ICE1WE1, ICEDEL}};
     int y, i, dy = 0;
 
     if (x < -ICELENGTH)
         return ERR;
     y = LINES / 2 - 5;
+    attron(COLOR_PAIR(2));
     for (i = 0; i <= ICEHEIGHT; ++i)
     {
         my_mvaddstr(y + i, x, tgv[((ICEHEIGHT + x) / 2) % ICEPATTERNS][i]);
     }
+    attroff(COLOR_PAIR(2));
     return OK;
 }
 
