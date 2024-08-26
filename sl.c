@@ -56,6 +56,7 @@ int my_mvaddstr(int y, int x, char *str);
 int ACCIDENT  = 0;
 int LOGO      = 0;
 int FLY       = 0;
+int LAND       = 0;
 int C51       = 0;
 int CONTINUOUS = 0;  // New variable to indicate continuous mode
 int NUMBER    = -1;
@@ -72,12 +73,13 @@ int my_mvaddstr(int y, int x, char *str)
 
 void option(char *str)
 {
-    extern int ACCIDENT, LOGO, FLY, C51, TGV, NUMBER, CONTINUOUS;
+    extern int ACCIDENT, LOGO, FLY, LAND, C51, TGV, NUMBER, CONTINUOUS;
 
     while (*str != '\0') {
         switch (*str) {
             case 'a': ACCIDENT = 1; break;
             case 'F': FLY      = 1; break;
+            case 'L': LAND     = 1; break;
             case 'l': LOGO     = 1; break;
             case 'c': C51      = 1; break;
             case 'r': CONTINUOUS = 1; break;  // Handle -r option
@@ -195,6 +197,10 @@ int add_sl(int x)
     if (x < - LOGOLENGTH)  return ERR;
     y = LINES / 2 - 3;
 
+    if (LAND == 1) {
+        y = 1.5 * LINES - (x / 6) - (COLS / 6) - LOGOHEIGHT;
+        py1 = -2;  py2 = -4;  py3 = -6;
+    }
     if (FLY == 1) {
         y = (x / 6) + LINES - (COLS / 6) - LOGOHEIGHT;
         py = 2;
@@ -244,6 +250,10 @@ int add_D51(int x)
     if (x < - D51LENGTH)  return ERR;
     y = LINES / 2 - 5;
 
+    if (LAND == 1) {
+        y = 1.5 * LINES - (x / 7) - (COLS / 7) - D51HEIGHT;
+        dy = -1;
+    }
     if (FLY == 1) {
         y = (x / 7) + LINES - (COLS / 7) - D51HEIGHT;
         dy = 1;
@@ -326,6 +336,10 @@ int add_C51(int x)
     if (x < - C51LENGTH)  return ERR;
     y = LINES / 2 - 5;
 
+    if (LAND == 1) {
+        y = 1.5 * LINES - (x / 7) - (COLS / 7) - C51HEIGHT;
+        dy = -1;
+    }
     if (FLY == 1) {
         y = (x / 7) + LINES - (COLS / 7) - C51HEIGHT;
         dy = 1;
