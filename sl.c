@@ -312,7 +312,7 @@ int add_D51(int x)
 }
 int add_ICE(int x)
 {
-    static char *tgv[ICEPATTERNS][ICEHEIGHT + 1] = {{ICE1TZ0, ICE1TZ1, ICE1TZ2, ICE1TZ3, ICE1TZ4,
+    static char *ice[ICEPATTERNS][ICEHEIGHT + 1] = {{ICE1TZ0, ICE1TZ1, ICE1TZ2, ICE1TZ3, ICE1TZ4,
                                                      ICE1WE0, ICEDEL},
                                                     {ICE1TZ0, ICE1TZ1, ICE1TZ2, ICE1TZ3, ICE1TZ4,
                                                      ICE1WE1, ICEDEL}};
@@ -324,7 +324,7 @@ int add_ICE(int x)
     attron(COLOR_PAIR(2));
     for (i = 0; i <= ICEHEIGHT; ++i)
     {
-        my_mvaddstr(y + i, x, tgv[((ICEHEIGHT + x) / 2) % ICEPATTERNS][i]);
+        my_mvaddstr(y + i, x, ice[((ICELENGTH + x)) % ICEPATTERNS][i]);
     }
     attroff(COLOR_PAIR(2));
     return OK;

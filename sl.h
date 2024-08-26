@@ -24,7 +24,7 @@
 
 #define TGVDEL   "                                                         "
 
-#define ICEHEIGHT 5
+#define ICEHEIGHT 6
 #define ICELENGTH 45
 #define ICEPATTERNS 2
 
