@@ -373,9 +373,16 @@ int add_ICE(int x)
                                                      {ICE1WG0, ICE1WG1, ICE1WG2, ICE1WG3, ICE1WG4, ICE1WG6, ICEDEL}};
     int y, i, j, dy = 0;
     int ICEWLENGHT = (ICELENGTH) * (NUMBER + 2);
+    
     if (x < -ICEWLENGHT)
         return ERR;
     y = LINES / 2 - 5;
+
+    if (FLY == 1) {
+        y = (x / 7) + LINES - (COLS / 7) - ICEHEIGHT;
+        dy = 1;
+    }
+
     attron(COLOR_PAIR(2));
     for (i = 0; i <= ICEHEIGHT; ++i)
     {
