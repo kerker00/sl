@@ -68,6 +68,7 @@ int NUMBER    = -1;
 int TGV       = 0;
 int ICE = 0;
 int EXIT = 0;
+int BACK = 0;
 
 int my_mvaddstr(int y, int x, char *str)
 {
@@ -89,6 +90,7 @@ void print_help()
     printf("  -a, --accident             some parts of the train will shout out for help\n");
     printf("  -F, --fly                  The selected Train will fly \n");
     printf("  -c, --C51                  Select a different type of steam locomotive \n");
+    printf("  -b, --backwards            Let the train run from left to right\n");
     printf("  -n, --number <number>      Specify a number of cars\n");
     printf("  -v               Enable verbose mode\n");
 }
@@ -100,6 +102,7 @@ struct option long_options[] = {
     {"C51", no_argument, 0, 'c'},
     {"little", no_argument, 0, 'l'},
     {"accident", no_argument, 0, 'a'},
+    {"backwards", no_argument, 0, 'b'},
     {"fly", no_argument, 0, 'F'},
     {"number", required_argument, 0, 'n'},
     {0, 0, 0, 0}};
@@ -107,9 +110,9 @@ struct option long_options[] = {
 void option(int argc, char *const argv[])
 {
     int c;
-    extern int ACCIDENT, LOGO, FLY, LAND, C51, TGV, NUMBER, CONTINUOUS, ICE, EXIT;
+    extern int ACCIDENT, LOGO, FLY, LAND, C51, TGV, NUMBER, CONTINUOUS, ICE, EXIT, BACK;
 
-    while ((c = getopt_long(argc, argv, "haFlLcrGin:", long_options, NULL)) != -1)
+    while ((c = getopt_long(argc, argv, "bhaFlLcrGin:", long_options, NULL)) != -1)
     {
         switch (c)
         {
@@ -133,6 +136,9 @@ void option(int argc, char *const argv[])
             break; // Handle -r option
         case 'G':
             TGV = 1;
+            break;
+        case 'b':
+            BACK = 1;
             break;
         case 'i':
             ICE = 1;
@@ -214,51 +220,77 @@ int main(int argc, char *argv[])
 
     do
     {
-        for (x = COLS - 1; x >= until; --x)
-        { // Loop the train from right to left
-            if (LOGO == 1)
-            {
-                if (add_sl(x) == ERR)
-                    break;
-            }
-            else if (C51 == 1)
-            {
-                if (add_C51(x) == ERR)
-                    break;
-            }
-            else if (ICE == 1)
-            {
-                if (add_ICE(x) == ERR)
+        if (BACK)
+        {
+
+            for (x = until + 1; x <= COLS + 1; ++x)
+            { // Loop the train from right to left
+                if (ICE == 1)
                 {
+                    if (add_ICE(x) == ERR)
+                    {
+                        break;
+                    }
+                }
+                refresh();
+                if (TGV)
+                    usleep(20000);
+                else if (ICE)
+                {
+                    usleep(15000);
+                }
+                else
+                    usleep(40000);
+            }
+        }
+        else
+        {
+
+            for (x = COLS - 1; x >= until; --x)
+            { // Loop the train from right to left
+                if (LOGO == 1)
+                {
+                    if (add_sl(x) == ERR)
+                        break;
+                }
+                else if (C51 == 1)
+                {
+                    if (add_C51(x) == ERR)
+                        break;
+                }
+                else if (ICE == 1)
+                {
+                    if (add_ICE(x) == ERR)
+                    {
+                        break;
+                    }
+                }
+                else if (TGV == 1)
+                {
+                    if (add_TGV(x) == ERR)
+                        break;
+                }
+                else
+                {
+                    if (add_D51(x) == ERR)
+                        break;
+                }
+                ch = getch(); // Get user input
+                if (ch == 'q')
+                {                   // Check if 'q' is pressed
+                    CONTINUOUS = 0; // Set CONTINUOUS to 0 to stop the loop
                     break;
                 }
+                refresh();
+                if (TGV)
+                    usleep(20000);
+                else if (ICE)
+                {
+                    usleep(15000);
+                }
+                else
+                    usleep(40000);
             }
-            else if (TGV == 1)
-            {
-                if (add_TGV(x) == ERR)
-                    break;
-            }
-            else
-            {
-                if (add_D51(x) == ERR)
-                    break;
-            }
-            ch = getch(); // Get user input
-            if (ch == 'q')
-            {                   // Check if 'q' is pressed
-                CONTINUOUS = 0; // Set CONTINUOUS to 0 to stop the loop
-                break;
-            }
-            refresh();
-            if (TGV)
-                usleep(20000);
-            else if (ICE)
-            {
-                usleep(15000);
-            }
-
-            else
-                usleep(40000);
         }
     } while (CONTINUOUS); // Repeat the loop if in continuous mode
     // Close the file
