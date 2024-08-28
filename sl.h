@@ -46,26 +46,34 @@
 #define ICE1WE1 "              \\-------(O)~~~~(O)------------(O)~~~~(O)-' "
 #define ICEDEL "                                                          "
 
+#define ICE1TY0 "      _.-\"                                               "
+#define ICE1TY1 " ___'-,__\"---______________________                      "
+#define ICE1TY2 "*|     ####              | | #### |\\'-,_.               "
+#define ICE1TY3 "*|                       | |              '-_            "
+#define ICE1TY4 "*|------DB----------------------------------_)           "
+#define ICE1TY5 " '--(o)~~~~(o)------------(o)~~~~(o)--------/            "
+#define ICE1TY6 " '---(O)~~~~(O)------------(O)~~~~(O)-------/            "
+
 #define ICE1WG0 "                                                         "
 #define ICE1WG1 "  _____________________________________________________  "
-#define ICE1WG2 "*| _  ____________________________________________  __ | "
+#define ICE1WG2 "*| _  _____________________________________________  _ | "
 #define ICE1WG3 "*||O||____||____||____||____||____||____||____||___||O|| "
-#define ICE1WG4 "*||_|----DB---------------------------------DB-----|_||| "
+#define ICE1WG4 "*||_|----DB---------------------------------DB------|_|| "
 #define ICE1WG5 " `---(o)~~~(o)-----------------------------(o)~~~(o)---' "
 #define ICE1WG6 " `----(O)~~~(O)-----------------------------(O)~~~(O)--' "
 #define ICEDWGEL "                                                         "
 
-#define D51HEIGHT	10
-#define D51FUNNEL	 7
-#define D51PATTERNS	 6
+#define D51HEIGHT 10
+#define D51FUNNEL 7
+#define D51PATTERNS 6
 
-#define D51STR1  "      ====        ________                ___________ "
-#define D51STR2  "  _D _|  |_______/        \\__I_I_____===__|_________| "
-#define D51STR3  "   |(_)---  |   H\\________/ |   |        =|___ ___|   "
-#define D51STR4  "   /     |  |   H  |  |     |   |         ||_| |_||   "
-#define D51STR5  "  |      |  |   H  |__--------------------| [___] |   "
-#define D51STR6  "  | ________|___H__/__|_____/[][]~\\_______|       |   "
-#define D51STR7  "  |/ |   |-----------I_____I [][] []  D   |=======|__ "
+#define D51STR1 "      ====        ________                ___________ "
+#define D51STR2 "  _D _|  |_______/        \\__I_I_____===__|_________| "
+#define D51STR3 "   |(_)---  |   H\\________/ |   |        =|___ ___|   "
+#define D51STR4 "   /     |  |   H  |  |     |   |         ||_| |_||   "
+#define D51STR5 "  |      |  |   H  |__--------------------| [___] |   "
+#define D51STR6 "  | ________|___H__/__|_____/[][]~\\_______|       |   "
+#define D51STR7 "  |/ |   |-----------I_____I [][] []  D   |=======|__ "
 
 #define D51WHL11 "__/ =| o |=-~~\\  /~~\\  /~~\\  /~~\\ ____Y___________|__ "
 #define D51WHL12 " |/-=|___|=    ||    ||    ||    |_____/~\\___/        "
@@ -91,7 +99,7 @@
 #define D51WHL62 " |/-=|___|=    ||    ||    ||    |_____/~\\___/        "
 #define D51WHL63 "  \\_/      \\_O=====O=====O=====O/      \\_/            "
 
-#define D51DEL   "                                                      "
+#define D51DEL "                                                      "
 
 #define COAL01 "                              "
 #define COAL02 "                              "
@@ -106,14 +114,14 @@
 
 #define COALDEL "                              "
 
-#define LOGOHEIGHT    	 6
-#define LOGOFUNNEL  	 4
-#define LOGOPATTERNS	 6
+#define LOGOHEIGHT 6
+#define LOGOFUNNEL 4
+#define LOGOPATTERNS 6
 
-#define LOGO1  "     ++      +------ "
-#define LOGO2  "     ||      |+-+ |  "
-#define LOGO3  "   /---------|| | |  "
-#define LOGO4  "  + ========  +-+ |  "
+#define LOGO1 "     ++      +------ "
+#define LOGO2 "     ||      |+-+ |  "
+#define LOGO3 "   /---------|| | |  "
+#define LOGO4 "  + ========  +-+ |  "
 
 #define LWHL11 " _|--O========O~\\-+  "
 #define LWHL12 "//// \\_/      \\_/    "
@@ -140,14 +148,14 @@
 #define LCOAL5 "|__________________| "
 #define LCOAL6 "   (O)       (O)     "
 
-#define LCAR1  "____________________ "
-#define LCAR2  "|  ___ ___ ___ ___ | "
-#define LCAR3  "|  |_| |_| |_| |_| | "
-#define LCAR4  "|__________________| "
-#define LCAR5  "|__________________| "
-#define LCAR6  "   (O)        (O)    "
+#define LCAR1 "____________________ "
+#define LCAR2 "|  ___ ___ ___ ___ | "
+#define LCAR3 "|  |_| |_| |_| |_| | "
+#define LCAR4 "|__________________| "
+#define LCAR5 "|__________________| "
+#define LCAR6 "   (O)        (O)    "
 
-#define DELLN  "                     "
+#define DELLN "                     "
 
 #define C51HEIGHT 11
 #define C51FUNNEL 7
