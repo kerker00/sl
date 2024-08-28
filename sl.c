@@ -97,8 +97,10 @@ struct option long_options[] = {
     {"help", no_argument, 0, 'h'},
     {"TGV", no_argument, 0, 'G'},
     {"ICE", no_argument, 0, 'i'},
+    {"C51", no_argument, 0, 'c'},
     {"little", no_argument, 0, 'l'},
     {"accident", no_argument, 0, 'a'},
+    {"fly", no_argument, 0, 'F'},
     {"number", required_argument, 0, 'n'},
     {0, 0, 0, 0}};
 
