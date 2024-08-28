@@ -3,11 +3,13 @@
  *        Copyright 1993,1998,2014-2015
  *                  Toyoda Masashi
  *                  (mtoyoda@acm.org)
- *        Last Modified: 2014/06/03
+ *        Last Modified: 2024/08/28
  *========================================
  */
+/* sl version 6.01 : Ice can drive forward and backwards now                 */
+/*                                              by Markus Müller  2024/08/28 */
 /* sl version 6.00 : Inlude many MR from Github and added ICE                */
-/*                                              by Markus Müller    2024/08/26 */
+/*                                              by Markus Müller  2024/08/26 */
 /* sl version 5.03 : Fix some more compiler warnings.                        */
 /*                                              by Ryan Jacobs    2015/01/19 */
 /* sl version 5.02 : Fix compiler warnings.                                  */
