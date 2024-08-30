@@ -411,6 +411,8 @@ int add_ICE(int x)
                                                       ICE1TY5, ICEDEL},
                                                      {ICE1TY0, ICE1TY1, ICE1TY2, ICE1TY3, ICE1TY4,
                                                       ICE1TY6, ICEDEL}};
+    static char *icer[ICEPATTERNS][ICEHEIGHT + 1] = {{ICE1BR0, ICE1BR1, ICE1BR2, ICE1BR3, ICE1BR4, ICE1BR5, ICEDEL},
+                                                     {ICE1BR0, ICE1BR1, ICE1BR2, ICE1BR3, ICE1BR4, ICE1BR6, ICEDEL}};
     int y, i, j, dy = 0;
     int ICEWLENGHT = (ICELENGTH) * (NUMBER + 2);
     
@@ -428,7 +430,15 @@ int add_ICE(int x)
     {
         my_mvaddstr(y + i, x, ice[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
         for (j = 1; j <= NUMBER; j++)
-            my_mvaddstr(y + i + dy * j, x + (ICELENGTH - 1) * j, icew[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
+            if (NUMBER >= 8 && j == 5)
+            {
+                my_mvaddstr(y + i + dy * j, x + (ICELENGTH - 1) * j, icer[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
+            }
+            else
+            {
+                my_mvaddstr(y + i + dy * j, x + (ICELENGTH - 1) * j, icew[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
+            }
+
         my_mvaddstr(y + i, x + ICELENGTH - (1 * NUMBER + 1) + NUMBER * ICELENGTH, iceb[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
     }
     attroff(COLOR_PAIR(2));
