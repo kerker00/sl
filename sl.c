@@ -6,6 +6,8 @@
  *        Last Modified: 2024/08/28
  *========================================
  */
+/* sl version 7.00 : Add ICE3RD (ICE 3 Redesign) with wagon support         */
+/*                                              by Markus Müller  2026/05/19 */
 /* sl version 6.01 : Ice can drive forward and backwards now                 */
 /*                                              by Markus Müller  2024/08/28 */
 /* sl version 6.00 : Inlude many MR from Github and added ICE                */
@@ -57,6 +59,7 @@ int add_C51(int x);
 int add_D51(int x);
 int add_TGV(int x);
 int add_ICE(int x);
+int add_ICE3RD(int x);
 int add_sl(int x);
 int my_mvaddstr(int y, int x, char *str);
 
@@ -69,6 +72,7 @@ int CONTINUOUS = 0;  // New variable to indicate continuous mode
 int NUMBER    = -1;
 int TGV       = 0;
 int ICE = 0;
+int ICE3RD = 0;
 int EXIT = 0;
 int BACK = 0;
 
@@ -83,38 +87,42 @@ int my_mvaddstr(int y, int x, char *str)
 
 void print_help()
 {
-    printf("Usage: program [options]\n");
+    printf("sl version 7.00 -- SL runs across your terminal. (c) 1993-2026 Toyoda Masashi et al.\n");
+    printf("Usage: sl [options]\n");
     printf("Options:\n");
     printf("  -h, --help                 Display this help message and exit\n");
     printf("  -G, --TGV                  Run a french TGV \n");
-    printf("  -i, --ICE                  Run a german ice 1 \n");
-    printf("  -l, --little               Run a german ice 1 \n");
+    printf("  -i, --ICE                  Run a german ICE 1 \n");
+    printf("  -3, --ICE3RD               Run an ICE 3 (Redesign) \n");
+    printf("  -l, --little               Run the small (logo) train \n");
     printf("  -a, --accident             some parts of the train will shout out for help\n");
     printf("  -F, --fly                  The selected Train will fly \n");
     printf("  -c, --C51                  Select a different type of steam locomotive \n");
     printf("  -b, --backwards            Let the train run from left to right\n");
-    printf("  -n, --number <number>      Specify a number of cars\n");
-    printf("  -v               Enable verbose mode\n");
+    printf("  -L, --land                 The selected train will land\n");
+    printf("  -r, --repeat               Run the train in a continuous loop\n");
+    printf("  -n, --number <number>      Specify a number of cars (1-100)\n");
 }
 // Struct to support long options
 struct option long_options[] = {
     {"help", no_argument, 0, 'h'},
     {"TGV", no_argument, 0, 'G'},
     {"ICE", no_argument, 0, 'i'},
+    {"ICE3RD", no_argument, 0, '3'},
     {"C51", no_argument, 0, 'c'},
     {"little", no_argument, 0, 'l'},
     {"accident", no_argument, 0, 'a'},
     {"backwards", no_argument, 0, 'b'},
     {"fly", no_argument, 0, 'F'},
     {"number", required_argument, 0, 'n'},
+    {"land",   no_argument,       0, 'L'},
     {0, 0, 0, 0}};
 
 void option(int argc, char *const argv[])
 {
     int c;
-    extern int ACCIDENT, LOGO, FLY, LAND, C51, TGV, NUMBER, CONTINUOUS, ICE, EXIT, BACK;
 
-    while ((c = getopt_long(argc, argv, "bhaFlLcrGin:", long_options, NULL)) != -1)
+    while ((c = getopt_long(argc, argv, "bhaFlLcrGin:3", long_options, NULL)) != -1)
     {
         switch (c)
         {
@@ -145,13 +153,20 @@ void option(int argc, char *const argv[])
         case 'i':
             ICE = 1;
             break;
+        case '3':
+            ICE3RD = 1;
+            break;
         case 'h':
             print_help();
             EXIT = 1;
             break;
-        case 'n':
-            NUMBER = atoi(optarg);
+        case 'n': {
+            char *endptr;
+            long val = strtol(optarg, &endptr, 10);
+            if (*endptr == '\0' && val >= 1 && val <= 100)
+                NUMBER = (int)val;
             break;
+        }
         default:
             break;
         }
@@ -174,9 +189,6 @@ int main(int argc, char *argv[])
     
     /* Quit from keyboard, Control-\ */
     signal(SIGQUIT, SIG_IGN);
-    
-    /* Stop process execution, Ctrl-Z */
-    signal(SIGSTOP, SIG_IGN);
     
     /* Stop process issued from tty */
     signal(SIGTSTP, SIG_IGN);
@@ -213,11 +225,24 @@ int main(int argc, char *argv[])
             bkgd(COLOR_PAIR(1));
         }
     }
+    if (ICE3RD == 1)
+    {
+        if (has_colors())
+        {
+            start_color();
+            init_pair(1, COLOR_WHITE, COLOR_WHITE);
+            init_pair(2, COLOR_RED, COLOR_WHITE);
+            bkgd(COLOR_PAIR(1));
+        }
+    }
 
     int until = -80;
     if (NUMBER > 0)
     {
-        until = -80 - (ICELENGTH * NUMBER);
+        if (ICE3RD == 1)
+            until = -80 - (ICE3RDLENGTH * NUMBER);
+        else
+            until = -80 - (ICELENGTH * NUMBER);
     }
 
     do
@@ -226,18 +251,41 @@ int main(int argc, char *argv[])
         {
 
             for (x = until + 1; x <= COLS + 1; ++x)
-            { // Loop the train from right to left
-                if (ICE == 1)
+            { // Loop the train from left to right
+                if (LOGO == 1)
+                {
+                    if (add_sl(x) == ERR)
+                        break;
+                }
+                else if (C51 == 1)
+                {
+                    if (add_C51(x) == ERR)
+                        break;
+                }
+                else if (ICE == 1)
                 {
                     if (add_ICE(x) == ERR)
-                    {
                         break;
-                    }
+                }
+                else if (ICE3RD == 1)
+                {
+                    if (add_ICE3RD(x) == ERR)
+                        break;
+                }
+                else if (TGV == 1)
+                {
+                    if (add_TGV(x) == ERR)
+                        break;
+                }
+                else
+                {
+                    if (add_D51(x) == ERR)
+                        break;
                 }
                 refresh();
                 if (TGV)
                     usleep(20000);
-                else if (ICE)
+                else if (ICE || ICE3RD)
                 {
                     usleep(15000);
                 }
@@ -267,6 +315,13 @@ int main(int argc, char *argv[])
                         break;
                     }
                 }
+                else if (ICE3RD == 1)
+                {
+                    if (add_ICE3RD(x) == ERR)
+                    {
+                        break;
+                    }
+                }
                 else if (TGV == 1)
                 {
                     if (add_TGV(x) == ERR)
@@ -286,7 +341,7 @@ int main(int argc, char *argv[])
                 refresh();
                 if (TGV)
                     usleep(20000);
-                else if (ICE)
+                else if (ICE || ICE3RD)
                 {
                     usleep(15000);
                 }
@@ -294,11 +349,9 @@ int main(int argc, char *argv[])
                     usleep(40000);
             }
         }
-    } while (CONTINUOUS); // Repeat the loop if in continuous mode
-    // Close the file
+    } while (CONTINUOUS);
     mvcur(0, COLS - 1, LINES - 1, 0);
-    endwin();
-
+    endwin(); /* Restore terminal */
     return 0;
 }
 
@@ -414,9 +467,9 @@ int add_ICE(int x)
     static char *icer[ICEPATTERNS][ICEHEIGHT + 1] = {{ICE1BR0, ICE1BR1, ICE1BR2, ICE1BR3, ICE1BR4, ICE1BR5, ICEDEL},
                                                      {ICE1BR0, ICE1BR1, ICE1BR2, ICE1BR3, ICE1BR4, ICE1BR6, ICEDEL}};
     int y, i, j, dy = 0;
-    int ICEWLENGHT = (ICELENGTH) * (NUMBER + 2);
+    int ICETRAINLEN = ICELENGTH * (NUMBER + 2);
     
-    if (x < -ICEWLENGHT)
+    if (x < -ICETRAINLEN)
         return ERR;
     y = LINES / 2 - 5;
 
@@ -428,18 +481,64 @@ int add_ICE(int x)
     attron(COLOR_PAIR(2));
     for (i = 0; i <= ICEHEIGHT; ++i)
     {
-        my_mvaddstr(y + i, x, ice[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
+        my_mvaddstr(y + i, x, ice[(ICETRAINLEN + x) / 5 % ICEPATTERNS][i]);
         for (j = 1; j <= NUMBER; j++)
             if (NUMBER >= 8 && j == 5)
             {
-                my_mvaddstr(y + i + dy * j, x + (ICELENGTH - 1) * j, icer[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
+                my_mvaddstr(y + i + dy * j, x + (ICELENGTH - 1) * j, icer[(ICETRAINLEN + x) / 5 % ICEPATTERNS][i]);
             }
             else
             {
-                my_mvaddstr(y + i + dy * j, x + (ICELENGTH - 1) * j, icew[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
+                my_mvaddstr(y + i + dy * j, x + (ICELENGTH - 1) * j, icew[(ICETRAINLEN + x) / 5 % ICEPATTERNS][i]);
             }
 
-        my_mvaddstr(y + i, x + ICELENGTH - (1 * NUMBER + 1) + NUMBER * ICELENGTH, iceb[(ICEWLENGHT + x) / 5 % ICEPATTERNS][i]);
+        my_mvaddstr(y + i, x + ICELENGTH - (1 * NUMBER + 1) + NUMBER * ICELENGTH, iceb[(ICETRAINLEN + x) / 5 % ICEPATTERNS][i]);
+    }
+    attroff(COLOR_PAIR(2));
+    return OK;
+}
+
+int add_ICE3RD(int x)
+{
+    /* Linker Triebkopf – Nase zeigt links (Front bei Rechts-nach-Links) */
+    static char *front_loco[ICE3RDPATTERNS][ICE3RDHEIGHT + 1] = {
+        {ICE3RDBR0, ICE3RDBR1, ICE3RDBR2, ICE3RDBR3, ICE3RDBR4, ICE3RDBR5, ICE3RDBR0},
+        {ICE3RDBR0, ICE3RDBR1, ICE3RDBR2, ICE3RDBR3, ICE3RDBR4, ICE3RDBR6, ICE3RDBR0}
+    };
+    /* Rechter Triebkopf – Nase zeigt rechts (Front bei Links-nach-Rechts) */
+    static char *rear_loco[ICE3RDPATTERNS][ICE3RDHEIGHT + 1] = {
+        {ICE3RDY0, ICE3RDY1, ICE3RDY2, ICE3RDY3, ICE3RDY4, ICE3RDY5, ICE3RDY0},
+        {ICE3RDY0, ICE3RDY1, ICE3RDY2, ICE3RDY3, ICE3RDY4, ICE3RDY6, ICE3RDY0}
+    };
+    /* Mittelwagen */
+    static char *wagon[ICE3RDPATTERNS][ICE3RDHEIGHT + 1] = {
+        {ICE3RDWG0, ICE3RDWG1, ICE3RDWG2, ICE3RDWG3, ICE3RDWG4, ICE3RDWG5, ICE3RDWGDEL},
+        {ICE3RDWG0, ICE3RDWG1, ICE3RDWG2, ICE3RDWG3, ICE3RDWG4, ICE3RDWG6, ICE3RDWGDEL}
+    };
+
+    int y, i, j, dy = 0;
+    int TRAINLEN = ICE3RDLENGTH * (NUMBER + 2);
+
+    if (x < -TRAINLEN)
+        return ERR;
+    y = LINES / 2 - 5;
+
+    if (FLY == 1) {
+        y = (x / 7) + LINES - (COLS / 7) - ICE3RDHEIGHT;
+        dy = 1;
+    }
+
+    int pat = (TRAINLEN + x) / 5 % ICE3RDPATTERNS;
+
+    attron(COLOR_PAIR(2));
+    for (i = 0; i <= ICE3RDHEIGHT; ++i) {
+        /* linker Triebkopf – Nase links */
+        my_mvaddstr(y + i, x, front_loco[pat][i]);
+        /* Mittelwagen */
+        for (j = 1; j <= NUMBER; j++)
+            my_mvaddstr(y + i + dy * j, x + (ICE3RDLENGTH - 1) * j, wagon[pat][i]);
+        /* rechter Triebkopf – Nase rechts */
+        my_mvaddstr(y + i, x + ICE3RDLENGTH - (NUMBER + 1) + NUMBER * ICE3RDLENGTH, rear_loco[pat][i]);
     }
     attroff(COLOR_PAIR(2));
     return OK;
@@ -579,9 +678,11 @@ void add_smoke(int y, int x)
             S[i].ptrn += (S[i].ptrn < SMOKEPTNS - 1) ? 1 : 0;
             my_mvaddstr(S[i].y, S[i].x, Smoke[S[i].kind][S[i].ptrn]);
         }
-        my_mvaddstr(y, x, Smoke[sum % 2][0]);
-        S[sum].y = y;    S[sum].x = x;
-        S[sum].ptrn = 0; S[sum].kind = sum % 2;
-        sum ++;
+        if (sum < 999) {
+            my_mvaddstr(y, x, Smoke[sum % 2][0]);
+            S[sum].y = y;    S[sum].x = x;
+            S[sum].ptrn = 0; S[sum].kind = sum % 2;
+            sum++;
+        }
     }
 }
