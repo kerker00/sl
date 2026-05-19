@@ -1,17 +1,91 @@
-name: C/C++ CI
+name: Build & Release
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
+    tags: ["v*"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    name: Build (${{ matrix.artifact }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: sl-linux-amd64
+          - os: macos-latest
+            artifact: sl-macos-arm64
 
     steps:
-    - uses: actions/checkout@v4
-    - name: make
-      run: make
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y libncurses-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ncurses
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: make
+
+      - name: Build (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          NCURSES=$(brew --prefix ncurses)
+          make CFLAGS="-O -Wall -I${NCURSES}/include" LDFLAGS="-L${NCURSES}/lib"
+
+      - name: Stage artifact
+        run: cp sl ${{ matrix.artifact }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}
+
+  release:
+    name: GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          awk -v ver="## [${VERSION}]" '
+            found && /^## \[/ { exit }
+            found { print }
+            index($0, ver) == 1 { found=1 }
+          ' CHANGELOG.md > release_notes.md
+          echo "--- Release notes for v${VERSION} ---"
+          cat release_notes.md
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "sl v${{ steps.version.outputs.VERSION }}"
+          body_path: release_notes.md
+          files: |
+            sl-linux-amd64
+            sl-macos-arm64

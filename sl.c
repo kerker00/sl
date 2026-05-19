@@ -1,48 +1,12 @@
 /*========================================
- *    sl.c: SL version 5.03
- *        Copyright 1993,1998,2014-2015
- *                  Toyoda Masashi
+ *    sl.c: SL version 7.00
+ *        Copyright 1993,1998,2014-2026
+ *                  Toyoda Masashi et al.
  *                  (mtoyoda@acm.org)
- *        Last Modified: 2024/08/28
+ *        Last Modified: 2026/05/19
  *========================================
  */
-/* sl version 7.00 : Add ICE3RD (ICE 3 Redesign) with wagon support         */
-/*                                              by Markus Müller  2026/05/19 */
-/* sl version 6.01 : Ice can drive forward and backwards now                 */
-/*                                              by Markus Müller  2024/08/28 */
-/* sl version 6.00 : Inlude many MR from Github and added ICE                */
-/*                                              by Markus Müller  2024/08/26 */
-/* sl version 5.03 : Fix some more compiler warnings.                        */
-/*                                              by Ryan Jacobs    2015/01/19 */
-/* sl version 5.02 : Fix compiler warnings.                                  */
-/*                                              by Jeff Schwab    2014/06/03 */
-/* sl version 5.01 : removed cursor and handling of IO                       */
-/*                                              by Chris Seymour  2014/01/03 */
-/* sl version 5.00 : add -c option                                           */
-/*                                              by Toyoda Masashi 2013/05/05 */
-/* sl version 4.00 : add C51, usleep(40000)                                  */
-/*                                              by Toyoda Masashi 2002/12/31 */
-/* sl version 3.03 : add usleep(20000)                                       */
-/*                                              by Toyoda Masashi 1998/07/22 */
-/* sl version 3.02 : D51 flies! Change options.                              */
-/*                                              by Toyoda Masashi 1993/01/19 */
-/* sl version 3.01 : Wheel turns smoother                                    */
-/*                                              by Toyoda Masashi 1992/12/25 */
-/* sl version 3.00 : Add d(D51) option                                       */
-/*                                              by Toyoda Masashi 1992/12/24 */
-/* sl version 2.02 : Bug fixed.(dust remains in screen)                      */
-/*                                              by Toyoda Masashi 1992/12/17 */
-/* sl version 2.01 : Smoke run and disappear.                                */
-/*                   Change '-a' to accident option.                         */
-/*                                              by Toyoda Masashi 1992/12/16 */
-/* sl version 2.00 : Add a(all),l(long),F(Fly!) options.                     */
-/*                                              by Toyoda Masashi 1992/12/15 */
-/* sl version 1.02 : Add turning wheel.                                      */
-/*                                              by Toyoda Masashi 1992/12/14 */
-/* sl version 1.01 : Add more complex smoke.                                 */
-/*                                              by Toyoda Masashi 1992/12/14 */
-/* sl version 1.00 : SL runs vomiting out smoke.                             */
-/*                                              by Toyoda Masashi 1992/12/11 */
+/* See CHANGELOG.md for full version history. */
 
 #include <ctype.h>
 #include <curses.h>
