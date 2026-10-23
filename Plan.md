@@ -26,33 +26,36 @@ Guiding principles:
 
 ## 2. Where we are today
 
-Codebase: `sl.c` (~590 lines), `sl.h` (~210 lines of ASCII art as `#define`s).
+State of `main` at v7.00 (2026-05-19): `sl.c` (~650 lines), `sl.h` (~240 lines
+of ASCII art as `#define`s), `CHANGELOG.md`, CI that builds Linux (amd64) and
+macOS (arm64) binaries and creates a GitHub release for `v*` tags.
 
 What works:
 
 - D51, C51, logo train (`-l`), TGV (`-G`), ICE 1 (`-i`) with power cars on both
-  ends, n middle cars and a dining car when `n >= 8`.
-- `getopt_long` options, `-F` fly, `-a` accident, `-n` cars, `-r` continuous,
-  `-b` backwards (ICE only), `q` to quit (forward runs only).
+  ends, n middle cars and a dining car when `n >= 8`, ICE 3 Redesign (`-3`) with
+  n middle cars.
+- `getopt_long` options, `-F` fly, `-L` land, `-a` accident, `-n` cars (1–100),
+  `-r` continuous, `-b` backwards (all trains), `q` to quit (forward runs only).
+- Already fixed in v7.00: `-b` dispatches all trains, smoke buffer bounded,
+  `SIGSTOP` call removed, help text corrected.
 
 Problems found while reading the code:
 
 | # | Issue | Where |
 | --- | ----- | ----- |
-| 1 | One `add_XXX()` per train with copy-pasted logic for fly/land/accident/cars; every new train repeats it | `sl.c` |
-| 2 | Features only exist for some trains: `-b` only ICE, `-L` not ICE/TGV, `-a` not ICE, `-n` ignored by TGV | `main`, `add_*` |
-| 3 | In `-b` mode `q` is never read and only the ICE is drawn (other trains: empty loop) | `sl.c:225-247` |
-| 4 | `until` always uses `ICELENGTH * NUMBER`, regardless of the train | `sl.c:217-221` |
+| 1 | One `add_XXX()` per train with copy-pasted logic for fly/land/accident/cars; every new train repeats it (ICE3RD just did) | `sl.c` |
+| 2 | Features only exist for some trains: `-L` not ICE/ICE3RD/TGV, `-a` not ICE/ICE3RD, `-n` ignored by TGV | `add_*` |
+| 3 | Train selection is an `if/else` chain duplicated in the forward and backward loop | `main` |
+| 4 | `until` only knows ICE 1 and ICE3RD lengths; other trains use the ICE 1 length | `main` |
 | 5 | `NUMBER` is mutated inside the draw functions as a default | `add_sl`, `add_D51`, `add_C51` |
-| 6 | Help text is wrong (`-l` described as ICE 1), `-v`, `-L`, `-r` undocumented, says "program" instead of `sl` | `print_help` |
-| 7 | `signal(SIGSTOP, SIG_IGN)` is not allowed (SIGSTOP cannot be caught or ignored) | `main` |
-| 8 | Smoke buffer `S[1000]` has no bounds check → overflow with long/continuous runs | `add_smoke` |
-| 9 | ICE sets `bkgd()` to white for the whole screen; no fallback without colours | `main` |
-| 10 | Speed (`usleep`) hard-coded per train in two places | `main` |
-| 11 | Version headers inconsistent (5.03 / 5.02 / 6.01), man page lacks new options | `sl.c`, `sl.h`, `sl.1` |
-| 12 | `q` quits every forward run, which breaks the "cannot escape" joke of plain `sl` | `sl.c:280-285` |
-| 13 | Stray file `Untitled-1.txt`; CI only builds on Ubuntu, no warnings-as-errors | repo root, `.github` |
-| 14 | ICE art comes from ascii.co.uk — origin and licence of the art should be clarified | `README.md` |
+| 6 | `q` quits forward runs, which breaks the "cannot escape" joke of plain `sl`; in `-b -r` there is no way out at all | `main` |
+| 7 | Once 999 smoke puffs exist, no new smoke appears (long `-r` runs) — needs a ring buffer | `add_smoke` |
+| 8 | ICE/ICE3RD set `bkgd()` to white for the whole screen; colour setup duplicated; no fallback without colours | `main` |
+| 9 | Speed (`usleep`) hard-coded per train in two places | `main` |
+| 10 | `sl.h` header still says 5.02; man page (`sl.1`, `sl.1.ja`) lacks the new options | `sl.h`, `sl.1` |
+| 11 | Stray file `Untitled-1.txt`; CI without `-Wextra -Werror` | repo root, `.github` |
+| 12 | ICE 1 art comes from ascii.co.uk — origin and licence of the art should be clarified | `README.md` |
 
 ## 3. Target architecture
 
@@ -108,7 +111,7 @@ Optional: double traction (`--double`) couples two units.
 
 A single `draw_train(def, x, opts)` replaces `add_D51/C51/TGV/ICE/sl`. It
 handles for **every** train: number of cars, direction, fly, land, accident,
-smoke. Bugs 1–5 and 10 disappear with it.
+smoke. Issues 1–5 and 9 disappear with it.
 
 ### 3.3 Direction
 
@@ -145,7 +148,7 @@ New, unified:
 
 ```text
 sl [options]
-  -t, --train <name>   ice1, ice2, ice3, ice3m, ice3neo, ice4, icet, icetd, icel,
+  -t, --train <name>   ice1, ice2, ice3, ice3rd, ice3m, ice3neo, ice4, icet, icetd, icel,
                        ice-v, d51 (default), c51, logo, tgv
       --list           list all trains with series number and year
   -n, --cars <n>       number of middle cars (clamped per train)
@@ -159,7 +162,7 @@ sl [options]
 ```
 
 Legacy flags stay as aliases: `-c` = `-t c51`, `-G` = `-t tgv`, `-i` = `-t ice1`,
-`-l` = `-t logo`, `--number` = `--cars`. Aliases also accept series numbers:
+`-l` = `-t logo`, `-3` = `-t ice3rd`, `--number` = `--cars`. Aliases also accept series numbers:
 `sl -t 412`.
 
 Input: without `-r`, `sl` ignores all input, including `q` (as upstream). With
@@ -178,6 +181,7 @@ art has to show so that people recognise the train.
 | `icet` | BR 411 (7 cars) / 415 (5 cars) | 1999 | EMU, tilting | Lounge: view through the cab |
 | `icetd` | BR 605 | 2001 | 4-car diesel EMU, tilting | Diesel, short |
 | `ice3` | BR 403 | 2000 | 8-car EMU | Lounge, distributed traction |
+| `ice3rd` | BR 403 Redesign | 2010s | 8-car EMU | Exists since v7.00 (`-3`); becomes a livery/variant of `ice3` |
 | `ice3m` | BR 406 | 2000 | 8-car EMU, multi-system | Like 403, other markings |
 | `ice-velaro` | BR 407 (Velaro D) | 2013 | 8-car EMU | Rounder Velaro nose |
 | `ice4` | BR 412 | 2017 | 7, 12 or 13 cars | Flat, plain front, no lounge |
@@ -210,25 +214,27 @@ behaviour intact.
 
 ### Phase 0 – Housekeeping (small)
 
-- Rename `master` to `main` (local, GitHub default branch, CI trigger).
-- Plain `sl` ignores input again; `q` only in `-r` mode.
-- Remove `Untitled-1.txt`, fix help text, remove the `SIGSTOP` call, bound the
-  smoke buffer, unify version to 7.0.0-dev.
-- CI: Ubuntu + macOS, `-Wall -Wextra -Werror`, `make install DESTDIR=` check.
+- Rename `master` to `main` (done 2026-10-23, CI trigger updated).
+- Plain `sl` ignores input again; `q` only in `-r` mode (issue 6).
+- Smoke as ring buffer (issue 7), remove `Untitled-1.txt`, update `sl.h` header
+  and man pages (issue 10).
+- CI: add `-Wextra -Werror`, `make install DESTDIR=` check.
 - Makefile: `PREFIX`, `install`, `uninstall`, man page install.
+- Release as v7.01 (tag only after explicit go).
 
 ### Phase 1 – Engine refactor with behaviour parity
 
 - Introduce `render.h` with curses and buffer backends.
-- Golden frames for D51, C51, logo, TGV, ICE 1 recorded *before* the refactor
+- Golden frames for D51, C51, logo, TGV, ICE 1, ICE3RD recorded *before* the refactor
   (fixed `COLS×LINES`, selected `x` positions).
-- Move the five existing trains into the data model; the golden frames must not
+- Move the six existing trains into the data model; the golden frames must not
   change (except for documented bug fixes).
 
 ### Phase 2 – Features for all trains
 
 - `-b`, `-F`, `-L`, `-a`, `-n`, `-r` for every train, mirroring, colour roles,
   `NO_COLOR`, `--list`, `--train`, `--random`.
+- Release as v8.00 (new CLI and engine).
 - Update `sl.1`, README (English) and keep `sl.1.ja`/`README.ja.md` in sync for
   the original options.
 
@@ -244,7 +250,7 @@ behaviour intact.
 - Trains from section 5.1, one PR each.
 - Fun: `--station` (train stops at a platform with a destination display,
   passengers board), coupling/splitting at a station, `--delay` easter egg.
-- Packaging: Homebrew tap, Debian/Arch packages, GitHub release 7.0.0.
+- Packaging: Homebrew tap, Debian/Arch packages.
 
 ## 7. Testing
 
@@ -253,14 +259,22 @@ behaviour intact.
 - `make update-golden` regenerates the files deliberately.
 - Each train gets at least: frame at the start, middle, end; backwards; fly.
 
-## 8. Upstream and licence
+## 8. Versioning and releases
+
+- Versions follow the existing `vX.XX` scheme from `CHANGELOG.md`.
+- Every PR adds a `CHANGELOG.md` entry; the release workflow takes the notes
+  from there.
+- Tags trigger a public GitHub release, so a tag is only pushed after an
+  explicit yes for exactly that version.
+
+## 9. Upstream and licence
 
 - The original licence (Toyoda Masashi) stays; its notice must appear in all
   copies. New files get a short header that refers to it.
 - Upstream `mtoyoda/sl` is quiet. Bug fixes from phase 0 could be offered there
   as small PRs; the ICE features stay in this fork.
 
-## 9. Decisions
+## 10. Decisions
 
 Taken on 2026-10-23:
 
@@ -270,4 +284,4 @@ Taken on 2026-10-23:
    (already in regular service); after that, as many trains as possible (5.1).
 4. **Input:** plain `sl` cannot be interrupted. `q` only works with `-r`.
 5. **Displays:** no special display backends. The render seam is for tests only.
-6. **Branch:** `master` is renamed to `main` in phase 0.
+6. **Branch:** `master` is renamed to `main` (done on 2026-10-23).
