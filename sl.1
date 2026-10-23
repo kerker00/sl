@@ -1,42 +1,65 @@
 .\"
-.\"  Copyright 1993,1998,2014 Toyoda Masashi (mtoyoda@acm.org)
+.\"  Copyright 1993,1998,2014-2026 Toyoda Masashi et al. (mtoyoda@acm.org)
 .\"
 .\"	@(#)sl.1
 .\"
-.TH SL 1 "March 31, 2014"
+.TH SL 1 "October 23, 2026" "sl 7.01"
 .SH NAME
 sl \- cure your bad habit of mistyping
 .SH SYNOPSIS
 .B sl
 [
-.B \-alFc
+.B \-abcFGhilLr3
+] [
+.B \-n
+.I cars
 ]
 .SH DESCRIPTION
 .B sl
 is a highly advanced animation program for curing your bad habit of mistyping.
-.PP
+It cannot be interrupted.
 .TP
-.B \-a
+.BR \-a ", " \-\-accident
 An accident is occurring. People cry for help.
 .TP
-.B \-l
-Little version.
+.BR \-b ", " \-\-backwards
+The train runs from left to right.
 .TP
-.B \-F
-It flies like the galaxy express 999.
-.TP
-.B \-G
-It's French like Oscar.
-.TP
-.B \-c
+.BR \-c ", " \-\-C51
 C51 appears instead of D51.
 .TP
-.B \-<number of cars>
-Specify the number of cars like `sl -5`.
-.PP
+.BR \-F ", " \-\-fly
+It flies like the galaxy express 999.
+.TP
+.BR \-G ", " \-\-TGV
+It's French like Oscar.
+.TP
+.BR \-h ", " \-\-help
+Show a short help and exit.
+.TP
+.BR \-i ", " \-\-ICE
+A German ICE 1 appears.
+.TP
+.BR \-3 ", " \-\-ICE3RD
+A German ICE 3 (redesign) appears.
+.TP
+.BR \-l ", " \-\-little
+Little version.
+.TP
+.BR \-L ", " \-\-land
+The train comes down to land.
+.TP
+.BR \-r ", " \-\-repeat
+The train keeps coming. Press
+.B q
+to stop it; this is the only way out.
+.TP
+.BR \-n ", " \-\-number " \fIcars\fR"
+Specify the number of cars (1\-100).
 .SH SEE ALSO
 .BR ls (1)
 .SH BUGS
 It sometimes lists directory contents.
 .SH AUTHOR
-Toyoda Masashi (mtoyoda@acm.org)
+Toyoda Masashi (mtoyoda@acm.org),
+with additions by Markus M\(:uller and others.

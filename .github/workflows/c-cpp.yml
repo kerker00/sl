@@ -33,13 +33,19 @@ jobs:
 
       - name: Build (Linux)
         if: runner.os == 'Linux'
-        run: make
+        run: make CFLAGS="-O -Wall -Wextra -Werror"
 
       - name: Build (macOS)
         if: runner.os == 'macOS'
         run: |
           NCURSES=$(brew --prefix ncurses)
-          make CFLAGS="-O -Wall -I${NCURSES}/include" LDFLAGS="-L${NCURSES}/lib"
+          make CFLAGS="-O -Wall -Wextra -Werror" CPPFLAGS="-I${NCURSES}/include" LDFLAGS="-L${NCURSES}/lib"
+
+      - name: Install check
+        run: |
+          make install DESTDIR="$PWD/stage" PREFIX=/usr
+          test -x stage/usr/bin/sl
+          test -f stage/usr/share/man/man1/sl.1
 
       - name: Stage artifact
         run: cp sl ${{ matrix.artifact }}

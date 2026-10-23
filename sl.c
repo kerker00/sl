@@ -1,9 +1,9 @@
 /*========================================
- *    sl.c: SL version 7.00
+ *    sl.c: SL version 7.01
  *        Copyright 1993,1998,2014-2026
  *                  Toyoda Masashi et al.
  *                  (mtoyoda@acm.org)
- *        Last Modified: 2026/05/19
+ *        Last Modified: 2026/10/23
  *========================================
  */
 /* See CHANGELOG.md for full version history. */
@@ -49,9 +49,15 @@ int my_mvaddstr(int y, int x, char *str)
     return OK;
 }
 
+/* Only -r can be left with q; a plain sl cannot be interrupted. */
+int quit_requested()
+{
+    return CONTINUOUS && getch() == 'q';
+}
+
 void print_help()
 {
-    printf("sl version 7.00 -- SL runs across your terminal. (c) 1993-2026 Toyoda Masashi et al.\n");
+    printf("sl version 7.01 -- SL runs across your terminal. (c) 1993-2026 Toyoda Masashi et al.\n");
     printf("Usage: sl [options]\n");
     printf("Options:\n");
     printf("  -h, --help                 Display this help message and exit\n");
@@ -64,7 +70,7 @@ void print_help()
     printf("  -c, --C51                  Select a different type of steam locomotive \n");
     printf("  -b, --backwards            Let the train run from left to right\n");
     printf("  -L, --land                 The selected train will land\n");
-    printf("  -r, --repeat               Run the train in a continuous loop\n");
+    printf("  -r, --repeat               Run the train in a continuous loop, q quits\n");
     printf("  -n, --number <number>      Specify a number of cars (1-100)\n");
 }
 // Struct to support long options
@@ -80,6 +86,7 @@ struct option long_options[] = {
     {"fly", no_argument, 0, 'F'},
     {"number", required_argument, 0, 'n'},
     {"land",   no_argument,       0, 'L'},
+    {"repeat", no_argument,       0, 'r'},
     {0, 0, 0, 0}};
 
 void option(int argc, char *const argv[])
@@ -140,7 +147,6 @@ void option(int argc, char *const argv[])
 int main(int argc, char *argv[])
 {
     int x = 0;
-    int ch = 0;
     option(argc, argv);
     if (EXIT)
         return 0;
@@ -246,6 +252,11 @@ int main(int argc, char *argv[])
                     if (add_D51(x) == ERR)
                         break;
                 }
+                if (quit_requested())
+                {
+                    CONTINUOUS = 0;
+                    break;
+                }
                 refresh();
                 if (TGV)
                     usleep(20000);
@@ -296,10 +307,9 @@ int main(int argc, char *argv[])
                     if (add_D51(x) == ERR)
                         break;
                 }
-                ch = getch(); // Get user input
-                if (ch == 'q')
-                {                   // Check if 'q' is pressed
-                    CONTINUOUS = 0; // Set CONTINUOUS to 0 to stop the loop
+                if (quit_requested())
+                {
+                    CONTINUOUS = 0;
                     break;
                 }
                 refresh();
@@ -608,11 +618,12 @@ void add_man(int y, int x)
 
 void add_smoke(int y, int x)
 #define SMOKEPTNS        16
+#define SMOKEMAX         1000
 {
     static struct smokes {
         int y, x;
         int ptrn, kind;
-    } S[1000];
+    } S[SMOKEMAX];
     static int sum = 0;
     static char *Smoke[2][SMOKEPTNS]
         = {{"(   )", "(    )", "(    )", "(   )", "(  )",
@@ -635,18 +646,19 @@ void add_smoke(int y, int x)
     int i;
 
     if (x % 4 == 0) {
-        for (i = 0; i < sum; ++i) {
+        /* Ring buffer: the oldest puff has long faded and gets reused. */
+        for (i = 0; i < sum && i < SMOKEMAX; ++i) {
             my_mvaddstr(S[i].y, S[i].x, Eraser[S[i].ptrn]);
             S[i].y    -= dy[S[i].ptrn];
             S[i].x    += dx[S[i].ptrn];
             S[i].ptrn += (S[i].ptrn < SMOKEPTNS - 1) ? 1 : 0;
             my_mvaddstr(S[i].y, S[i].x, Smoke[S[i].kind][S[i].ptrn]);
         }
-        if (sum < 999) {
-            my_mvaddstr(y, x, Smoke[sum % 2][0]);
-            S[sum].y = y;    S[sum].x = x;
-            S[sum].ptrn = 0; S[sum].kind = sum % 2;
-            sum++;
-        }
+        my_mvaddstr(y, x, Smoke[sum % 2][0]);
+        S[sum % SMOKEMAX].y = y;    S[sum % SMOKEMAX].x = x;
+        S[sum % SMOKEMAX].ptrn = 0; S[sum % SMOKEMAX].kind = sum % 2;
+        /* Once the buffer is full, stay above SMOKEMAX; the parity is kept. */
+        if (++sum == 2 * SMOKEMAX)
+            sum = SMOKEMAX;
     }
 }

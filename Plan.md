@@ -212,15 +212,15 @@ drawn by us; existing third-party art is either licensed properly or redrawn.
 Each phase ends with a PR into `main` that builds and keeps the default
 behaviour intact.
 
-### Phase 0 – Housekeeping (small)
+### Phase 0 – Housekeeping (done, v7.01)
 
-- Rename `master` to `main` (done 2026-10-23, CI trigger updated).
-- Plain `sl` ignores input again; `q` only in `-r` mode (issue 6).
-- Smoke as ring buffer (issue 7), remove `Untitled-1.txt`, update `sl.h` header
-  and man pages (issue 10).
-- CI: add `-Wextra -Werror`, `make install DESTDIR=` check.
-- Makefile: `PREFIX`, `install`, `uninstall`, man page install.
-- Release as v7.01 (tag only after explicit go).
+- [x] Rename `master` to `main`, CI trigger updated.
+- [x] Plain `sl` ignores input again; `q` only in `-r` mode, also backwards
+  (issue 6).
+- [x] Smoke as ring buffer (issue 7), remove `Untitled-1.txt`, update `sl.h`
+  header and `sl.1` (issue 10; `sl.1.ja` stays as upstream wrote it).
+- [x] CI: `-Wextra -Werror`, `make install DESTDIR=` check.
+- [x] Makefile: `PREFIX`, `DESTDIR`, `CPPFLAGS`, `install`, `uninstall`, man pages.
 
 ### Phase 1 – Engine refactor with behaviour parity
 

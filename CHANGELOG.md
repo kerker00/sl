@@ -5,6 +5,18 @@ The version tag format is `vX.XX` (e.g. `v7.00`).
 
 ---
 
+## [7.01] – unreleased – Markus Müller
+
+- Plain `sl` cannot be interrupted again; `q` only stops `-r` / `--repeat`,
+  now also when running backwards
+- Add `--repeat` long option
+- Smoke uses a ring buffer, so it keeps coming in long `-r` runs
+- Makefile: `install` / `uninstall` with `PREFIX`, `DESTDIR` and man pages;
+  `CPPFLAGS`; build with `-Wextra`
+- CI: warnings are errors; install check; triggers on `main`
+- Man page lists all current options
+- Remove stray `Untitled-1.txt`
+
 ## [7.00] – 2026-05-19 – Markus Müller
 
 - Add ICE 3 Redesign (ICE3RD) locomotive with full wagon support (`-3` / `--ICE3RD`)
